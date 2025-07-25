@@ -1,6 +1,6 @@
 import subprocess
 import json
-from socket import gethostname, gethostbyname
+import socket
 from time import sleep
 
 def ping_ip(ip):
@@ -13,6 +13,14 @@ def ping_ip(ip):
 
 def get_local_ip():
     try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("8.8.8.8", 80))
+            local_ip = s.getsockname()[0]
+            return local_ip
+    except Exception as e:
+        return "Exception"
+    '''
+    try:
         hostname = gethostname()
     except Exception as e:
         print(f'Error getting hostname: {e}')
@@ -21,7 +29,8 @@ def get_local_ip():
     except Exception as e:
         print(f'Error getting local IP: {e}')
     return local_ip
-
+    '''
+    
 def main():
     local_ip = get_local_ip()
     if local_ip.split('.')[-2] != '6':

@@ -16,3 +16,7 @@ b:
 # process_begin: CreateProcess(NULL, mv .\dist\ping_camera.exe ., ...) failed.
 # make (e=2): Не удается найти указанный файл.
 # make: *** [b] Ошибка 2
+
+# $env:PATH += ";C:\Program Files (x86)\GnuWin32\bin"
+# [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Program Files (x86)\GnuWin32\bin", "Machine" or "User")
+# $env:PATH -split ";" | Where-Object { $_ -like "*GnuWin32*" }

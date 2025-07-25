@@ -1,5 +1,6 @@
 import subprocess
 import json
+from socket import gethostname, gethostbyname
 from time import sleep
 
 def ping_ip(ip):
@@ -10,8 +11,30 @@ def ping_ip(ip):
     
     return result == 0
 
+def get_local_ip():
+    try:
+        hostname = gethostname()
+    except Exception as e:
+        print(f'Error getting hostname: {e}')
+    try:
+        local_ip = gethostbyname(hostname)
+    except Exception as e:
+        print(f'Error getting local IP: {e}')
+    return local_ip
+
 def main():
-    print('Starting')
+    local_ip = get_local_ip()
+    if local_ip.split('.')[-2] != '6':
+        print('Local IP is not in the expected range')
+    '''
+    print('Starting NTP server')
+    try:
+        subprocess.Popen(['ntp.bat'], shell=True)
+    except Exception as e:
+        print(f'Error starting NTP server: {e}')
+    sleep(3)
+    '''
+    print('Starting ping check')
     with open('camera_list.json', 'r', encoding='utf-8') as f:
         cameras = json.load(f)
         for camera in cameras:
@@ -20,7 +43,7 @@ def main():
             if not ping_ip(ip):
                 print(f'Name: {name if name else "NO NAME"} | IP: {ip} | Status: ', end = '', flush=True)
     print('\nFinish')
-    sleep(5)
+    sleep(3)
 
 if __name__ == '__main__':
     main()

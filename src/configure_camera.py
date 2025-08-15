@@ -2,8 +2,6 @@ import subprocess
 import json
 import socket
 from time import sleep
-import sys
-import os
 import env
 
 

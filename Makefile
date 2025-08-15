@@ -13,11 +13,14 @@
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Base name used for both .py and .exe artifacts
-MAIN := ping_camera          # ':=' = expand immediately
+MAIN := configure_camera          # ':=' = expand immediately
 
 # Concatenate by placing text next to a variable reference
 MAIN_PY := $(MAIN).py        # -> ping_camera.py
 MAIN_EXE := $(MAIN).exe      # -> ping_camera.exe
+
+# Path to main .py file
+MAIN_PATH := src
 
 # PyInstaller output directory
 DISTDIR := dist

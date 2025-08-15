@@ -51,9 +51,9 @@ def main():
         if result == 0:
             # user gets prompted to start admin command
             # and this is printed
-            print('Failed to start NTP server')
-        else:
             print('Successfull start of NTP server')
+        else:
+            print('Failed to start NTP server')
     except Exception as e:
         print(f'Error starting NTP server: {e}')
     sleep(3)

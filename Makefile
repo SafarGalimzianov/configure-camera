@@ -1,12 +1,46 @@
-# Make uses CMD execution, so "" are required for commands in move
-b:
-	pyinstaller --onefile ping_camera.py
-	if exist del ping_camera.exe
-	move ".\dist\ping_camera.exe" ".\"
-	rmdir /s /q build dist
-	del *.spec
+# ── Quick reference ──────────────────────────────────────────────────────────
+# - Variables:
+#     :=  immediate (simple) expansion; right side is evaluated now
+#      =  lazy (recursive) expansion; right side is evaluated when used
+#    $(VAR) references a variable; $ is for Make’s expansion, not the shell
+#    $$   prints a literal $ inside a recipe line
+# - Automatic vars (not used below but useful): $@ (target), $< (first dep), $^ (all deps)
+# - Recipes:
+#   Each command line under a target must start with a TAB character.
+#   By default, each line runs in a fresh cmd.exe on Windows.
+# - @ prefix on a recipe line hides the echoed command (quieter output).
+# - .PHONY marks names as “not files”, so rules always run.
+# ─────────────────────────────────────────────────────────────────────────────
 
-# .PHONY: b clean
+# Base name used for both .py and .exe artifacts
+MAIN := ping_camera          # ':=' = expand immediately
+
+# Concatenate by placing text next to a variable reference
+MAIN_PY := $(MAIN).py        # -> ping_camera.py
+MAIN_EXE := $(MAIN).exe      # -> ping_camera.exe
+
+# PyInstaller output directory
+DISTDIR := dist
+
+# These targets are actions, not files
+.PHONY: b clean
+
+# IMPORTANT: recipe lines must start with a real TAB, not spaces
+# 'b' = build the executable with PyInstaller and tidy up
+b:
+    pyinstaller --onefile "$(MAIN_PY)"        # run PyInstaller (writes to .\dist by default)
+    if exist "$(MAIN_EXE)" del "$(MAIN_EXE)"  # CMD 'if exist' to remove old exe (quotes handle spaces)
+    move ".\$(DISTDIR)\$(MAIN_EXE)" ".\"      # move the new exe to project root
+    rmdir /s /q build "$(DISTDIR)"            # remove build and dist dirs (/s recursive, /q quiet)
+    del /q *.spec 2>nul                       # delete PyInstaller .spec (ignore error if not present)
+
+# 'clean' = remove build artifacts. '@' suppresses echoing each command.
+clean:
+    @if exist build rmdir /s /q build
+    @if exist "$(DISTDIR)" rmdir /s /q "$(DISTDIR)"
+    @del /q *.spec 2>nul
+    @if exist "$(MAIN_EXE)" del "$(MAIN_EXE)"
+
 
 # & "C:\Program Files (x86)\GnuWin32\bin\make.exe" b
 

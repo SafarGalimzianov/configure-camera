@@ -13,36 +13,50 @@
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Base name used for both .py and .exe artifacts
-MAIN := configure_camera          # ':=' = expand immediately
-
-# Concatenate by placing text next to a variable reference
-MAIN_PY := $(MAIN).py        # -> ping_camera.py
-MAIN_EXE := $(MAIN).exe      # -> ping_camera.exe
-
+# ':=' = expand immediately
+MAIN := configure_camera
 # Path to main .py file
 MAIN_PATH := src
 
+# Concatenate by placing text next to a variable reference
+MAIN_PY := $(MAIN_PATH)\$(MAIN).py
+MAIN_EXE := $(MAIN).exe
+
+
 # PyInstaller output directory
 DISTDIR := dist
+
+# Force GNU Make to use cmd.exe and route PyInstaller via Python
+SHELL := cmd.exe
+.SHELLFLAGS := /C
+PYTHON := uv
+PYI := pyinstaller
 
 # These targets are actions, not files
 .PHONY: b clean
 
 # IMPORTANT: recipe lines must start with a real TAB, not spaces
 # 'b' = build the executable with PyInstaller and tidy up
+
+# run PyInstaller (writes to .\dist by default)
+# CMD 'if exist' to remove old exe (quotes handle spaces)
+# move the new exe to project root
+# remove build and dist dirs (/s recursive, /q quiet)
+# delete PyInstaller .spec (ignore error if not present)
+
 b:
-    pyinstaller --onefile "$(MAIN_PY)"        # run PyInstaller (writes to .\dist by default)
-    if exist "$(MAIN_EXE)" del "$(MAIN_EXE)"  # CMD 'if exist' to remove old exe (quotes handle spaces)
-    move ".\$(DISTDIR)\$(MAIN_EXE)" ".\"      # move the new exe to project root
-    rmdir /s /q build "$(DISTDIR)"            # remove build and dist dirs (/s recursive, /q quiet)
-    del /q *.spec 2>nul                       # delete PyInstaller .spec (ignore error if not present)
+	$(PYI) --onefile "$(MAIN_PY)"
+	if exist "$(MAIN_EXE)" del "$(MAIN_EXE)"
+	move "$(DISTDIR)\$(MAIN_EXE)" .
+	rmdir /s /q build "$(DISTDIR)"
+	del /q *.spec 2>nul
 
 # 'clean' = remove build artifacts. '@' suppresses echoing each command.
 clean:
-    @if exist build rmdir /s /q build
-    @if exist "$(DISTDIR)" rmdir /s /q "$(DISTDIR)"
-    @del /q *.spec 2>nul
-    @if exist "$(MAIN_EXE)" del "$(MAIN_EXE)"
+	@if exist build rmdir /s /q build
+	@if exist "$(DISTDIR)" rmdir /s /q "$(DISTDIR)"
+	@del /q *.spec 2>nul
+	@if exist "$(MAIN_EXE)" del "$(MAIN_EXE)"
 
 
 # & "C:\Program Files (x86)\GnuWin32\bin\make.exe" b

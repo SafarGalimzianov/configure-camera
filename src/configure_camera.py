@@ -2,8 +2,14 @@ import subprocess
 import json
 import socket
 from time import sleep
-import env
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+
+SURVEILLANCE_IP_RANGE = str(os.getenv('SURVEILLANCE_IP_RANGE', '')).strip()
+NTP_CONFIG_PATH = str(os.getenv('NTP_CONFIG_PATH', ''))
+DATA_PATH = str(os.getenv('DATA_PATH', ''))
 
 def ping_ip(ip):
     num_of_requests = 1
@@ -35,11 +41,11 @@ def get_local_ip():
     
 def main():
     local_ip = get_local_ip()
-    if local_ip.split('.')[-2] != str(env.SURVEILLANCE_IP_RANGE):
+    if local_ip.split('.')[-2] != SURVEILLANCE_IP_RANGE:
         print('Local IP is not in the expected range')
     
     print('Starting NTP server')
-    command = ['sudo', 'run', env.NTP_CONFIG_PATH]
+    command = ['sudo', 'run', NTP_CONFIG_PATH]
     result = 0
     try:
         result = subprocess.run(command, stdout=subprocess.DEVNULL).returncode
@@ -54,7 +60,7 @@ def main():
             print('Failed to start NTP server')
 
     print('Starting ping check')
-    with open(env.DATA_PATH, 'r', encoding='utf-8') as f:
+    with open(DATA_PATH, 'r', encoding='utf-8') as f:
         cameras = json.load(f)
         for camera in cameras:
             name = str(camera.get('Name')).strip()

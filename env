@@ -1,3 +1,0 @@
-NTP_CONFIG_PATH = "config\ntp.bat"
-DATA_PATH = "data\camera_list.json"
-SURVEILLANCE_IP_RANGE = 6
